@@ -17,7 +17,7 @@
 			label {cursor:pointer}
 			@media (max-width: 1000px) {
 				section {margin-top:8vw}
-				fieldset{width:100%;margin-top:8vw}
+				fieldset{width:90%;margin:8vw 0 0 0}
 			}
 		</style>
 	</head>
@@ -36,6 +36,7 @@
 </html>
 <script>
 	var timer = 0;
+	var answered = false;
 	var tarDiv = document.querySelectorAll('#target div');
 	var ansDiv = document.querySelectorAll('#answers div');
 	var shuffle = (array) => {
@@ -63,6 +64,7 @@
 	var blinking = () => {
 		clearTimeout(timer);
 		speak('Congratulation');
+		answered = true;
 		congratulation();
 		setTimeout(function(){
 			clearTimeout(timer);
@@ -85,7 +87,7 @@
 			if(seq.length==7){
 				if(document.getElementById('sg').checked){
 					if(isSorted(seq)) {
-						blinking();
+						!answered && blinking();
 					}
 					else {
 						speak('Not correct!');
@@ -93,7 +95,7 @@
 				}
 				else {
 					if(isSorted(seq.reverse())) {
-						blinking();
+						!answered && blinking();
 					}
 					else {
 						speak('Not correct!');
@@ -106,6 +108,7 @@
 		var add = shuffle([...Array(60).keys()].slice(2,60));
 		var start = shuffle([...Array(25).keys()].slice(10,25))[0];
 		var ready = [start];
+		answered = false;
 		for(i=0;i<6;i++){
 			ready.push(start+add[i]);
 		}
