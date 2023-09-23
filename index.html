@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Numbers Order</title>
+		<link rel="icon" href="favicon.ico" type="image/x-icon" />
+		<link rel="apple-touch-icon" href="favicon.ico" />
+		<link rel="apple-touch-icon-precomposed" href="favicon.ico" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<meta name="viewport" content="user-scalable=no, width=device-width" />
+		<meta name="viewport" content="minimum-scale=1.0,width=device-width,maximum-scale=1,user-scalable=no" />
+		<style>
+			body {margin:0 auto;padding:0;font-family:arial;text-align:center}
+			section {margin:3vw;display:inline-grid;grid-template-columns: repeat(7,auto);grid-gap:7vw}
+			section div {border:solid 1px;font-size:4vw;padding:0;width:5vw;height:4.5vw;text-align:center;cursor:pointer}
+			fieldset{display:inline-grid;grid-template-columns:auto auto;width:1000px;margin:2vw auto;}
+			label {cursor:pointer}
+			@media (max-width: 1000px) {
+				section {margin-top:8vw}
+				fieldset{width:100%;margin-top:8vw}
+			}
+		</style>
+	</head>
+	<body>
+		<section id="target">
+			<div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+		</section>
+		<section id="answers">
+			<div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+		</section>
+		<fieldset>
+			<div><input name="order" type="radio" id="sg" checked> <label for="sg">Smallest to Greatest</label></div>
+			<div><input name="order" type="radio" id="gs"> <label for="gs">Greatest to Smallest</label></div>
+		</fieldset>
+	</body>
+</html>
+<script>
+	var timer = 0;
+	var tarDiv = document.querySelectorAll('#target div');
+	var ansDiv = document.querySelectorAll('#answers div');
+	var shuffle = (array) => {
+		let currentIndex = array.length,  randomIndex;
+		while (currentIndex > 0) {
+			randomIndex = Math.floor(Math.random() * currentIndex);
+			currentIndex--;
+			[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+		}
+		return array;
+	}
+	var isSorted = arr => arr.every((v,i,a) => !i || a[i-1] <= v);
+	var congratulation = () => {
+		timer = setTimeout(function(){
+			document.body.style.backgroundColor = document.body.style.backgroundColor=="white"?"whitesmoke":"white";
+			congratulation();
+		},200);
+	}
+	var speak = (txt) => {
+		var word = new SpeechSynthesisUtterance(txt)
+		word.lang = 'en';
+		word.rate = 1;
+		speechSynthesis.speak(word);
+	};
+	var blinking = () => {
+		clearTimeout(timer);
+		speak('Congratulation');
+		congratulation();
+		setTimeout(function(){
+			clearTimeout(timer);
+			document.body.style.backgroundColor = "white";
+			start();
+		},2000);
+	}
+	var writing = (answering,fn,txt) => {
+		for(i=0;i<7;i++) {
+			if(fn[i].innerText=="") {
+				fn[i].innerText = txt;
+				break;
+			}
+		}
+		if(answering) {			
+			var seq = [];
+			for(i=0;i<7;i++) {
+				tarDiv[i].innerText !="" && seq.push(tarDiv[i].innerText);
+			}
+			if(seq.length==7){
+				if(document.getElementById('sg').checked){
+					if(isSorted(seq)) {
+						blinking();
+					}
+					else {
+						speak('Not correct!');
+					}
+				}
+				else {
+					if(isSorted(seq.reverse())) {
+						blinking();
+					}
+					else {
+						speak('Not correct!');
+					}
+				}
+			}
+		}
+	}
+	var start = () => {
+		var add = shuffle([...Array(60).keys()].slice(2,60));
+		var start = shuffle([...Array(25).keys()].slice(10,25))[0];
+		var ready = [start];
+		for(i=0;i<6;i++){
+			ready.push(start+add[i]);
+		}
+		for(i=0;i<7;i++){
+			tarDiv[i].innerText = "";//ready[i];
+			ansDiv[i].innerText = ready[i];
+		}
+		[...ansDiv].forEach(obj=>{
+			obj.addEventListener('click',()=>{
+				writing(true,tarDiv,obj.innerText);
+				obj.innerText = "";
+			});
+		});
+		[...tarDiv].forEach(obj=>{
+			obj.addEventListener('click',()=>{
+				writing(false,ansDiv,obj.innerText);
+				obj.innerText = "";
+			});
+		});
+	}
+	start();
+</script>
